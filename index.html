@@ -83,7 +83,7 @@
 
       <button
         onclick="generateSignal()"
-        class="w-full mt-6 bg-yellow-400 hover:bg-yellow-300 transition text-black font-black text-2xl py-5 rounded-2xl"
+        class="mt-6 bg-yellow-400 hover:bg-yellow-300 transition text-black font-black text-2xl py-5 px-10 rounded-2xl inline-block"
       >
         ✨ GENERATE
       </button>
@@ -107,10 +107,10 @@
 
         </div>
 
-        <div class="bg-green-500/20 border border-green-500/20 text-green-400 px-5 py-2 rounded-full">
-          Ready ✓
-        </div>
-
+        <div id="readyBadge" class="hidden bg-green-500/20 border border-green-500/20 text-green-400 px-5 py-2 rounded-full">
+  Ready to Copy ✓
+</div>
+        
       </div>
 
       <div
@@ -272,6 +272,9 @@ Manajemen Posisi:
 Setup ini termasuk kategori Very High Risk Trade, sehingga sangat disarankan menggunakan manajemen risiko yang ketat dan siap menerima risiko saat loss maupun profit.`;
 
       output.innerText = formatted;
+document
+  .getElementById("readyBadge")
+  .classList.remove("hidden");
     }
 
     function copyOutput() {
