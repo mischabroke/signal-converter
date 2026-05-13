@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Orbi Trade Signal Formatter</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body {
+      background: #050505;
+    }
+
+    .glass {
+      background: rgba(20,20,20,0.9);
+      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(12px);
+    }
+
+    .output-box {
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    textarea {
+      outline: none;
+    }
+  </style>
+</head>
+
+<body class="text-white min-h-screen">
+
+  <div class="max-w-5xl mx-auto px-5 py-10">
+
+    <!-- HEADER -->
+    <div class="flex items-center justify-between mb-10">
+
+      <div>
+        <h1 class="text-4xl md:text-5xl font-black">
+          <span class="text-white">ORBI</span>
+          <span class="text-yellow-400">TRADE</span>
+        </h1>
+
+        <p class="text-zinc-400 text-lg mt-2">
+          Signal Formatter
+        </p>
+      </div>
+
+      <div class="glass px-5 py-3 rounded-2xl">
+        <span class="text-yellow-400">●</span>
+        <span class="font-semibold">XAU/USDlite</span>
+      </div>
+
+    </div>
+
+    <!-- INPUT CARD -->
+    <div class="glass rounded-3xl p-6 mb-6">
+
+      <div class="flex items-center justify-between mb-5">
+
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-yellow-400 text-black flex items-center justify-center font-black">
+            1
+          </div>
+
+          <h2 class="text-2xl font-bold">
+            INPUT SIGNAL
+          </h2>
+        </div>
+
+        <div class="text-zinc-400 hidden md:block">
+          Contoh: Buy 4110, Tp 4120, Sl 4100
+        </div>
+
+      </div>
+
+      <textarea
+        id="input"
+        class="w-full h-64 bg-black border border-zinc-800 rounded-2xl p-5 text-2xl font-mono"
+        placeholder="Buy 4110&#10;Tp 4120&#10;Sl 4100"
+      ></textarea>
+
+      <button
+        onclick="generateSignal()"
+        class="w-full mt-6 bg-yellow-400 hover:bg-yellow-300 transition text-black font-black text-2xl py-5 rounded-2xl"
+      >
+        ✨ GENERATE
+      </button>
+
+    </div>
+
+    <!-- OUTPUT -->
+    <div class="glass rounded-3xl p-6">
+
+      <div class="flex items-center justify-between mb-5">
+
+        <div class="flex items-center gap-3">
+
+          <div class="w-10 h-10 rounded-full bg-yellow-400 text-black flex items-center justify-center font-black">
+            2
+          </div>
+
+          <h2 class="text-2xl font-bold">
+            OUTPUT (READY TO POST)
+          </h2>
+
+        </div>
+
+        <div class="bg-green-500/20 border border-green-500/20 text-green-400 px-5 py-2 rounded-full">
+          Ready ✓
+        </div>
+
+      </div>
+
+      <div
+        id="output"
+        class="output-box bg-black border border-zinc-800 rounded-2xl p-6 text-xl leading-10 font-mono min-h-[500px]"
+      >
+VERY HIGH RISK TRADE
+
+XAU/USDlite – Orbi Trade
+
+BUY Area Entry: 4110-4113
+
+Take Profit: 4120 (±100 pips)
+Stop Loss: 4100 (±100 pips)
+
+Manajemen Posisi:
+• Maksimal 0.03 lot per entry
+• Dapat melakukan scaling hingga 3 posisi selama masih berada di area entry (0.01 / posisi)
+
+⚠️ Catatan Penting:
+Setup ini termasuk kategori Very High Risk Trade, sehingga sangat disarankan menggunakan manajemen risiko yang ketat dan siap menerima risiko saat loss maupun profit.
+      </div>
+
+      <!-- BUTTONS -->
+      <div class="grid grid-cols-2 gap-4 mt-6">
+
+        <button
+          class="bg-zinc-800 hover:bg-zinc-700 transition py-5 rounded-2xl text-2xl font-bold"
+        >
+          👁 PREVIEW
+        </button>
+
+        <button
+          onclick="copyOutput()"
+          class="bg-yellow-400 hover:bg-yellow-300 transition text-black py-5 rounded-2xl text-2xl font-black"
+        >
+          📋 COPY
+        </button>
+
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="text-center text-zinc-500 mt-10">
+      © 2025 Orbi Trade. All rights reserved.
+    </div>
+
+  </div>
+
+  <script>
+
+    function generateSignal() {
+
+      const raw = document.getElementById("input").value.trim();
+      const output = document.getElementById("output");
+
+      if (!raw) {
+        output.innerText = "Please input signal first.";
+        return;
+      }
+
+      const lower = raw.toLowerCase();
+
+      const isBuy = lower.includes("buy");
+      const isSell = lower.includes("sell");
+
+      if (!isBuy && !isSell) {
+        output.innerText = "Signal must contain BUY or SELL.";
+        return;
+      }
+
+      const tradeType = isBuy ? "BUY" : "SELL";
+
+      // ENTRY
+      const entryMatch = raw.match(
+        /(buy|sell)\s*(\d+(?:\.\d+)?)\s*(?:-|to)?\s*(\d+(?:\.\d+)?)?/i
+      );
+
+      // TP
+      const tpMatch = raw.match(
+        /tp\s*(\d+(?:\.\d+)?)/i
+      );
+
+      // SL
+      const slMatch = raw.match(
+        /sl\s*(\d+(?:\.\d+)?)/i
+      );
+
+      if (!entryMatch || !tpMatch || !slMatch) {
+        output.innerText =
+`Format Error
+
+Example:
+Buy 4110
+Tp 4120
+Sl 4100`;
+        return;
+      }
+
+      let entry1 = parseFloat(entryMatch[2]);
+      let entry2 = entryMatch[3]
+        ? parseFloat(entryMatch[3])
+        : null;
+
+      const tp = parseFloat(tpMatch[1]);
+      const sl = parseFloat(slMatch[1]);
+
+      // AUTO RANGE
+      if (!entry2) {
+
+        if (isBuy) {
+          entry2 = entry1 + 3;
+        } else {
+          entry2 = entry1;
+          entry1 = entry1 - 3;
+        }
+
+      }
+
+      const entryLow = Math.min(entry1, entry2);
+      const entryHigh = Math.max(entry1, entry2);
+
+      // REFERENCE ENTRY
+      let referenceEntry;
+
+      if (isBuy) {
+        referenceEntry = entryLow;
+      } else {
+        referenceEntry = entryHigh;
+      }
+
+      // PIPS
+      const tpPips =
+        Math.round(
+          Math.abs(tp - referenceEntry) * 10
+        );
+
+      const slPips =
+        Math.round(
+          Math.abs(sl - referenceEntry) * 10
+        );
+
+      const formatted =
+`VERY HIGH RISK TRADE
+
+XAU/USDlite – Orbi Trade
+
+${tradeType} Area Entry: ${entryLow}-${entryHigh}
+
+Take Profit: ${tp} (±${tpPips} pips)
+Stop Loss: ${sl} (±${slPips} pips)
+
+Manajemen Posisi:
+• Maksimal 0.03 lot per entry
+• Dapat melakukan scaling hingga 3 posisi selama masih berada di area entry (0.01 / posisi)
+
+⚠️ Catatan Penting:
+Setup ini termasuk kategori Very High Risk Trade, sehingga sangat disarankan menggunakan manajemen risiko yang ketat dan siap menerima risiko saat loss maupun profit.`;
+
+      output.innerText = formatted;
+    }
+
+    function copyOutput() {
+
+      const text =
+        document.getElementById("output").innerText;
+
+      const textarea =
+        document.createElement("textarea");
+
+      textarea.value = text;
+
+      document.body.appendChild(textarea);
+
+      textarea.select();
+
+      document.execCommand("copy");
+
+      document.body.removeChild(textarea);
+
+      alert("Signal copied successfully!");
+    }
+
+  </script>
+
+</body>
+</html>
